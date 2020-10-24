@@ -13,4 +13,4 @@ f = open('filename.txt', 'w')
 
 
 print('\n'.join(map(str, ed)).replace(
-    '(', '').replace(')', '').replace(',', ''), file=f)
+    '(', '').replace(')', '').replace(',', '').replace(' ', '\t'), file=f)
