@@ -2,64 +2,63 @@ from queue import Queue
 from _collections import defaultdict
 
 
-def getShortestPaths(graph, size, src_node, hospitals, k):
-    pred = [-1] * size
-    nearest_hospitals = BFS(graph, size, src_node, hospitals, pred, k)
+def getResult(graph, size, src_node, hospitals, k):
+    parent = [-1] * size
+    nearest_hospitals = BFS(graph, size, src_node, hospitals, parent, k)
     paths = []
     for current_hospital in nearest_hospitals:
-        crawl = current_hospital
-        path = [crawl]
-        while pred[crawl] != -1:
-            path.append(pred[crawl])
-            crawl = pred[crawl]
+        current = current_hospital
+        path = [current]
+        while parent[current] != -1:
+            path.append(parent[current])
+            current = parent[current]
         paths.append(path.copy())
     return paths
 
 
-def BFS(graph, size, src_node, hospitals, pred, k):
+def BFS(graph, size, src_node, hospitals, parent, k):
     queue = Queue()
     visited = [False] * size
-    hospitals_found = 0
-    hospital_list = []  # stores all the hospitals found
+    tmp_k = 0
+    hospitalList = []
     visited[src_node] = True
     queue.EnQueue(src_node)
 
     if str(src_node) in hospitals:
-        hospitals_found += 1
-        hospital_list.append(src_node)
+        tmp_k += 1
+        hospitalList.append(src_node)
 
-    while not queue.isEmpty() and hospitals_found < k:
+    while not queue.isEmpty() and tmp_k < k:
         current_node = queue.DeQueue()
-        for neighbor in graph[current_node]:
-            if not visited[neighbor]:
-                visited[neighbor] = True
-                pred[neighbor] = current_node
-                queue.EnQueue(neighbor)
-                if str(neighbor) in hospitals:
-                    hospitals_found += 1
-                    hospital_list.append(neighbor)
-                    if hospitals_found >= k:
+        for nextNode in graph[current_node]:
+            if not visited[nextNode]:
+                visited[nextNode] = True
+                parent[nextNode] = current_node
+                queue.EnQueue(nextNode)
+                if str(nextNode) in hospitals:
+                    tmp_k += 1
+                    hospitalList.append(nextNode)
+                    if tmp_k >= k:
                         break
-    return hospital_list
+    return hospitalList
 
 
 if __name__ == '__main__':
 
     g = defaultdict(list)
 
-    file1 = "roadNet-CA.txt"
-    file2 = "hospital2.txt"
-    f1 = open(file1, "r")   # file 1 contains the network data
-    clearStr = f1.readline()
-    # while loop to clear the first few lines of the file which describes the data
+    edgeFile = "roadNet-CA.txt"
+    hospitalFile = "hospital2.txt"
+    edgeFileOpen = open(edgeFile, "r")
+    clearStr = edgeFileOpen.readline()
     while clearStr[0] == '#':
-        clearStr = f1.readline()
-    str1 = clearStr + f1.read()
-    f1.close()
+        clearStr = edgeFileOpen.readline()
+    str1 = clearStr + edgeFileOpen.read()
+    edgeFileOpen.close()
     arr1 = str1.split("\n")
 
     size = 0
-    # for loop to create the adjacency list and store it into the 'graph' variable
+
     for i in arr1[0:-1]:
         a = i.split("\t")
         g[int(a[0])].append(int(a[1]))
@@ -70,23 +69,23 @@ if __name__ == '__main__':
 
     size += 1
 
-    f2 = open(file2, "r")
-    nu = f2.readline()
-    str2 = f2.read()
+    hospitalFileOpen = open(hospitalFile, "r")
+    nu = hospitalFileOpen.readline()
+    str2 = hospitalFileOpen.read()
     hospitals = str2.split("\n")
-    f2.close()
+    hospitalFileOpen.close()
 
     k = int(input("Enter value for k: "))
 
-    ans = open("ANSWER.txt", 'w')
+    result = open("result.txt", 'w')
 
     for node in sorted(g.keys()):
-        paths = getShortestPaths(g, size, node, hospitals, k)
-        ans.write('source node  :' + str(node) + ':  ')
+        paths = getResult(g, size, node, hospitals, k)
+        result.write('source node  :' + str(node) + ':  ')
         for path in paths:
-            ans.write(', distance: ' + str(len(path) - 1) + ',  path: [')
+            result.write(', distance: ' + str(len(path) - 1) + ',  path: [')
             string = ', '.join(str(x) for x in path[::-1])
-            ans.write(string + ' ]')
+            result.write(string + ' ]')
 
-        ans.write('\n')
-    ans.close()
+        result.write('\n')
+    result.close()
