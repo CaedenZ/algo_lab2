@@ -113,6 +113,13 @@ def BFS(graph, size, src_node, hospitals, pred, k):
         hospitals_found += 1
         hospital_list.append(src_node)
 
+    ## pred = [-1,-1,-1]
+    # if craw = 3
+    # pred craw = 1
+    # path,append(1)
+    # craw = pred[craw] = 1
+    # [-1, 0, 0, 1]
+    ## pred = [-1,-1,1]
     while not queue.isEmpty() and hospitals_found < k:
         current_node = queue.DeQueue()
         for neighbor in graph[current_node]:

@@ -116,7 +116,6 @@ def dijkstra(aGraph, start):
             if next.visited:
                 continue
             new_dist = current.get_distance() + int(current.get_weight(next))
-
             if new_dist < next.get_distance():
                 next.set_distance(new_dist)
                 next.set_previous(current)
@@ -125,15 +124,6 @@ def dijkstra(aGraph, start):
             else:
                 print('not updated : current = %s next = %s new_dist = %s'
                       % (current.get_id(), next.get_id(), next.get_distance()))
-
-        # Rebuild heap
-        # 1. Pop every item
-        while len(unvisited_queue):
-            heapq.heappop(unvisited_queue)
-        # 2. Put all vertices not visited into the queue
-        unvisited_queue = [(v.get_distance(), v)
-                           for v in aGraph if not v.visited]
-        heapq.heapify(unvisited_queue)
 
 
 if __name__ == '__main__':
