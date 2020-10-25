@@ -29,17 +29,17 @@ def BFS(graph, size, src_node, hospitals, parent, k):
         tmp_k += 1                                                          # Add 1 to hospitals found
         hospitalList.append(src_node)                                       # Add source node to hospital list
 
-
-    # parent = [-1,-1,-1]
+    # Hello Caeden please update the explanation for this
+    # parent = [-1, -1, -1]
     # if current = 3
     # parent[current] = 1
     # path.append(1)
     # current = parent[current] = 1
     # updated path: [-1, 0, 0, 1]  
     # -1: Not Visited 
-    # 0: Neighbour
+    # 0: Neighbour 
     # 1: Visted
-    # parent = [-1,-1,1]
+    # parent = [-1, -1, 1]
 
     while not queue.isEmpty() and tmp_k < k:                                # When there is something in the queue and number of hospitals found is less than k,
         current_node = queue.DeQueue()                                      # Get current node from the queue
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     g = defaultdict(list)                                                   # create a dictionary list for our graph
 #-------- Prepare the data --------#
-    edgeFile = "roadNet-CA.txt"
+    edgeFile = "graphs.txt"
     hospitalFile = "hospital2.txt"
     edgeFileOpen = open(edgeFile, "r")
     clearStr = edgeFileOpen.readline()                                      
@@ -99,7 +99,7 @@ if __name__ == '__main__':
         result.write('source node  :' + str(node) + ':  ')                                    
         for path in paths:                                                                   # Output every path into the text file
             result.write(', distance: ' + str(len(path) - 1) + ',  path: [')
-            string = ', '.join(str(x) for x in path[::-1])
+            string = ', '.join(str(x) for x in path[::-1])                                   # Reverse the path to ensure result starts from the source node and ends at hospital
             result.write(string + ' ]')
 
         result.write('\n')
