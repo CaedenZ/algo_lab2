@@ -14,46 +14,89 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.uploadHospitalBtn.clicked.connect(self.gethospitalfiles)
         self.ui.submitBtn.clicked.connect(self.displayOutput)
 
+    #-------- To obtain shortest path --------#
 
-    def getShortestPaths(self, graph, size, src_node, hospitals, k):
-        pred = [-1] * size
-        nearest_hospitals = self.BFS(graph, size, src_node, hospitals, pred, k)
+
+    def getResult(self, graph, size, src_node, hospitals, k):
+        parent = [-1] * size  # Init the path tracing array
+        nearest_hospitals = self.BFS(graph, size, src_node,
+                                hospitals, parent, k)    # to call the BFS
+        # create an array for the shortest path
         paths = []
+
         for current_hospital in nearest_hospitals:
-            crawl = current_hospital
-            path = [crawl]
-            while pred[crawl] != -1:
-                path.append(pred[crawl])
-                crawl = pred[crawl]
+            current = current_hospital
+            path = [current]
+            # When parent[current] not equals to -1, it have not reach the src node
+            while parent[current] != -1:
+                # The parent will be added to the path
+                path.append(parent[current])
+                # The parent will now become the current node
+                current = parent[current]
+            # Append the path into paths
             paths.append(path.copy())
         return paths
 
+    #------------ BFS code -------------#
 
-    def BFS(self, graph, size, src_node, hospitals, pred, k):
+
+    def BFS(self, graph, size, src_node, hospitals, parent, k):
+        # Start a queue
         queue = Queue()
+        # Set every single node to not visited
         visited = [False] * size
-        hospitals_found = 0
-        hospital_list = []  # stores all the hospitals found
+        # Number of hospitals found
+        tmp_k = 0
+        # Create a list for hospitals
+        hospitalList = []
+        # Set starting node as visited
         visited[src_node] = True
+        # Add starting node to the queue
         queue.EnQueue(src_node)
 
+        # If starting node is a hospital,
         if str(src_node) in hospitals:
-            hospitals_found += 1
-            hospital_list.append(src_node)
+            # Add 1 to hospitals found
+            tmp_k += 1
+            # Add source node to hospital list
+            hospitalList.append(src_node)
 
-        while not queue.isEmpty() and hospitals_found < k:
+
+        # parent = [-1, 2 ,0 ,1]
+        # if current = hopital_node  = 1
+        # parent[current] = 2
+        # path.append(2)
+        # current = parent[current] = 2
+        # parent[current] = 0
+        # path.append(0)
+        # current = parent[current] = 0
+        # parent[current] = -1
+        # path = [2, 0]
+        # path to hospital 1 from node 0 is [0, 2, 1]
+
+        # When there is something in the queue and number of hospitals found is less than k,
+        while not queue.isEmpty() and tmp_k < k:
+            # Get current node from the queue
             current_node = queue.DeQueue()
-            for neighbor in graph[current_node]:
-                if not visited[neighbor]:
-                    visited[neighbor] = True
-                    pred[neighbor] = current_node
-                    queue.EnQueue(neighbor)
-                    if str(neighbor) in hospitals:
-                        hospitals_found += 1
-                        hospital_list.append(neighbor)
-                        if hospitals_found >= k:
+            # Get the next node base on the graph
+            for nextNode in graph[current_node]:
+                # Checks if the node is visited before or not, if not visited,
+                if not visited[nextNode]:
+                    # Next node will be marked as visited
+                    visited[nextNode] = True
+                    # Set the neighbour as the current node
+                    parent[nextNode] = current_node
+                    # Add next node to the queue
+                    queue.EnQueue(nextNode)
+                    # if next node is a hospital,
+                    if str(nextNode) in hospitals:
+                        tmp_k += 1                                              # Add 1 to hospitals found
+                        # Add source node to hospital list
+                        hospitalList.append(nextNode)
+                        if tmp_k >= k:                                          # Check if number of hospitals is more than k
                             break
-        return hospital_list
+        return hospitalList
+
 
     def getedgefiles(self):
         global my_file_name1
@@ -103,10 +146,10 @@ class MyWindow(QtWidgets.QMainWindow):
 
         k = int(self.ui.textEdit.toPlainText())
 
-        ans = open("ANSWER2.txt", 'w')
+        ans = open("result.txt", 'w')
 
         for node in sorted(g.keys()):
-            paths = self.getShortestPaths(g, size, node, hospitals, k)
+            paths = self.getResult(g, size, node, hospitals, k)
             ans.write('source node  :' + str(node) + ':  ')
             for path in paths:
                 ans.write(', distance: ' + str(len(path) - 1) + ',  path: [')
